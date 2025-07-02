@@ -18,7 +18,10 @@ const Login int = 2
 const Exit int = 3
 
 
-var users = []User{}
+
+var users = make(map[string]string)
+
+// var users = []User{}
 
 func main() {
 	loop:
@@ -58,8 +61,8 @@ func signup() {
 		fmt.Println("A user with this name already exists! Try another name.")
 		return;
 	}
-	users = append(users, user)
-	fmt.Printf("welcome %v", user.Name)
+	users[user.Name] = user.Password
+	fmt.Printf("welcome %v\n", user.Name)
 }
 
 func login() {
@@ -86,23 +89,18 @@ func getUser() User {
 }
 
 func userExists(name string) bool {
-	for _, user := range users {
-		if user.Name == name {
-			return true
-		}
-	}
-	return false
+	_, exists := users[name]
+	return exists 
 }
 
 
-func authenticate(login User) error {
-	for _, user := range users {
-		if user.Name == login.Name {
-			if user.Password == login.Password {
-				return nil
-			}
-			return errors.New("wrong password")
-		}
+func authenticate(user User) error {
+	password, ok := users[user.Name]
+	if !ok {
+		return errors.New("User does not exist")
 	}
-	return errors.New("user does not exist")
+	if user.Password == password {
+		return nil
+	}
+	return errors.New("wrong password")
 }
